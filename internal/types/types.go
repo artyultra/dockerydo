@@ -1,9 +1,17 @@
 package types
 
+import (
+	"time"
+
+	"github.com/charmbracelet/bubbles/table"
+)
+
 type Model struct {
+	Table      table.Model
 	Containers []Container
-	Cursor     int
-	Selected   map[int]struct{}
+	Err        error
+	Width      int
+	Height     int
 }
 
 type Container struct {
@@ -21,4 +29,12 @@ type Container struct {
 	Size         string `json:"Size"`
 	State        string `json:"State"`
 	Status       string `json:"Status"`
+	InternalPort string
+	ExternalPort string
 }
+
+type ErrMsg error
+
+type ContainersMsg []Container
+
+type TickMsg time.Time
