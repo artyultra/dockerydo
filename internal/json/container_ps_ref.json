@@ -1,0 +1,34 @@
+[
+  {
+    "Command": "\"sleep 3600\"",
+    "CreatedAt": "2025-10-28 13:23:06 -0600 MDT",
+    "ID": "5218b59a6953",
+    "Image": "busybox",
+    "Labels": "",
+    "LocalVolumes": "0",
+    "Mounts": "",
+    "Names": "test-busybox",
+    "Networks": "bridge",
+    "Ports": "",
+    "RunningFor": "5 hours ago",
+    "Size": "4.1kB (virtual 4.34MB)",
+    "State": "exited",
+    "Status": "Exited (0) 2 hours ago"
+  },
+  {
+    "Command": "\"docker-entrypoint.s…\"",
+    "CreatedAt": "2025-10-28 12:51:08 -0600 MDT",
+    "ID": "58200faec9e5",
+    "Image": "postgres:alpine",
+    "Labels": "com.docker.compose.depends_on=,com.docker.compose.image=sha256:48c8ad3a7284b82be4482a52076d47d879fd6fb084a1cbfccbd551f9331b0e40,com.docker.compose.oneoff=False,com.docker.compose.service=postgres-test,com.docker.compose.config-hash=5a71cd305a5af34950d1cc66aea409870df154a1c6a91842984edfdc27aff318,com.docker.compose.container-number=1,com.docker.compose.project.working_dir=/Users/kiga/dev/test_containers,com.docker.compose.version=2.34.0,com.docker.compose.project=test_containers,com.docker.compose.project.config_files=/Users/kiga/dev/test_containers/docker-compose.yml",
+    "LocalVolumes": "1",
+    "Mounts": "6c5b704a5db770…",
+    "Names": "test-postgres",
+    "Networks": "test_containers_default",
+    "Ports": "0.0.0.0:9874-\u003e5432/tcp",
+    "RunningFor": "5 hours ago",
+    "Size": "20.5kB (virtual 281MB)",
+    "State": "running",
+    "Status": "Up 3 hours"
+  }
+]
