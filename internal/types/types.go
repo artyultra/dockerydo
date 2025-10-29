@@ -40,8 +40,22 @@ type Container struct {
 	Size         string `json:"Size"`
 	State        string `json:"State"`
 	Status       string `json:"Status"`
-	InternalPort string
-	ExternalPort string
+	InternalPort string // parsed from Ports
+	ExternalPort string // -------^^^^------
+}
+
+type DockerLabels struct {
+	ComposeService      string
+	ComposeProject      string
+	ComposeVersion      string
+	ComposeConfigFiles  string
+	ComposeWorkingDir   string
+	ComposeConfigHash   string
+	ComposeContainerNum string
+	ComposeDependsOn    string
+	ComposeImage        string
+	ComposeOneoff       string
+	RawLabels           map[string]string // raw key-value pairs
 }
 
 type ErrMsg error
