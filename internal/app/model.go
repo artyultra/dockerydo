@@ -21,6 +21,14 @@ func NewModel() types.Model {
 	}
 }
 
+func getSelectedContainer(m types.Model) *types.Container {
+	selectedRow := m.Table.Cursor()
+	if selectedRow < 0 || selectedRow >= len(m.Containers) {
+		return nil
+	}
+	return &m.Containers[selectedRow]
+}
+
 func Init(m types.Model) tea.Cmd {
 	return tea.Batch(docker.GetContainers, tickCmd())
 }

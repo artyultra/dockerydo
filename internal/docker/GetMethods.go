@@ -41,3 +41,9 @@ func GetContainers() tea.Msg {
 	}
 	return types.ContainersMsg(containers)
 }
+
+func InspectContainer(container types.Container) tea.Cmd {
+	return func() tea.Msg {
+		return types.InspectMsg(container)
+	}
+}
