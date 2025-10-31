@@ -68,3 +68,10 @@ func UpdateTable(m *types.Model) {
 	m.Table.SetColumns(columns)
 	m.Table.SetHeight(m.Height - 2)
 }
+
+func RenderTableFooter(width int) string {
+	footerStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(colors.Lavender))
+
+	return footerStyle.Render("\n r: Refresh • q: Quit\n")
+}

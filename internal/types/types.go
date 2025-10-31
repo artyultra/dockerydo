@@ -30,7 +30,8 @@ type Container struct {
 	CreatedAt    string `json:"CreatedAt"`
 	ID           string `json:"ID"`
 	Image        string `json:"Image"`
-	Labels       string `json:"Labels"`
+	RawLabels    string `json:"Labels"`
+	Labels       *DockerLabels
 	LocalVolumes string `json:"LocalVolumes"`
 	Mounts       string `json:"Mounts"`
 	Names        string `json:"Names"`

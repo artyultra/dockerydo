@@ -37,6 +37,8 @@ func GetContainers() tea.Msg {
 			container.ExternalPort = portParts[0]
 			container.InternalPort = portParts[1]
 		}
+		container.Labels = parseLabels(container.RawLabels)
+
 		containers = append(containers, container)
 	}
 	return types.ContainersMsg(containers)

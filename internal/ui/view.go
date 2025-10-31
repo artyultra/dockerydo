@@ -12,12 +12,12 @@ func View(m types.Model) string {
 		return fmt.Sprintf("Error: %v\n\nPress q to quit.", m.Err)
 	}
 	if m.Mode == types.ViewModeDetailed {
-		return RenderHeader(m) + m.ViewPort.View() + "\n r: Refresh • q: Quit\n"
+		return RenderHeader(m) + m.ViewPort.View() + RenderDetailViewFooter(m.Width)
 
 	}
 	style := lipgloss.NewStyle().
 		Width(m.Width).
 		Align(lipgloss.Center)
 
-	return style.Render(m.Table.View() + "\n r: Refresh • q: Quit\n")
+	return style.Render(m.Table.View() + RenderTableFooter(m.Width))
 }
