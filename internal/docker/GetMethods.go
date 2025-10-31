@@ -31,11 +31,8 @@ func GetContainers() tea.Msg {
 		}
 		newTimeUp := strings.ReplaceAll(container.RunningFor, " ago", "")
 		container.RunningFor = newTimeUp
-		if container.Ports != "" {
-			cleanPorts := strings.ReplaceAll(container.Ports, "0.0.0.0:", "")
-			portParts := strings.Split(cleanPorts, "->")
-			container.ExternalPort = portParts[0]
-			container.InternalPort = portParts[1]
+		if container.RawPorts != "" {
+			container.Ports = parsePort(container.RawPorts)
 		}
 		container.Labels = parseLabels(container.RawLabels)
 

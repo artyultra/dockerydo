@@ -65,13 +65,36 @@ func RenderDetailedView(m types.Model) string {
 	b.WriteString(RenderField(labelStyle, valueStyle, "ID", truncate(container.ID)))
 	b.WriteString(RenderField(labelStyle, valueStyle, "Name", truncate(container.Names)))
 	b.WriteString(RenderField(labelStyle, valueStyle, "State", truncate(container.State)))
-	b.WriteString(RenderField(labelStyle, valueStyle, "External port", truncate(container.ExternalPort)))
-	b.WriteString(RenderField(labelStyle, valueStyle, "Internal port", truncate(container.InternalPort)))
 	b.WriteString(RenderField(labelStyle, valueStyle, "Time up", truncate(container.RunningFor)))
 	b.WriteString(RenderField(labelStyle, valueStyle, "Image", truncate(container.Image)))
 	b.WriteString(RenderField(labelStyle, valueStyle, "Creation date", truncate(container.CreatedAt)))
 	b.WriteString(RenderField(labelStyle, valueStyle, "Command", truncate(container.Command)))
 	b.WriteString(RenderField(labelStyle, valueStyle, "Size RW", truncate(container.Size)))
+
+	b.WriteString("\n")
+	b.WriteString(sectionHeaderStyle.Render("Ports") + "\n")
+	for i, portMap := range container.Ports {
+		if portMap.Ipv6 != "" {
+			b.WriteString(RenderField(labelStyle, valueStyle, "IPv6", truncate(portMap.Ipv6)))
+		}
+		if portMap.Ipv4 != "" {
+			b.WriteString(RenderField(labelStyle, valueStyle, "IPv4", truncate(portMap.Ipv4)))
+		}
+		if portMap.InternalRange != "" {
+			b.WriteString(RenderField(labelStyle, valueStyle, "Internal", truncate(portMap.InternalRange)))
+		}
+		if portMap.ExternalRange != "" {
+			b.WriteString(RenderField(labelStyle, valueStyle, "External", truncate(portMap.ExternalRange)))
+		}
+		if portMap.Protocol != "" {
+			b.WriteString(RenderField(labelStyle, valueStyle, "Protocol", truncate(portMap.Protocol)))
+		}
+		if i != len(container.Ports)-1 {
+			b.WriteString(RenderField(labelStyle, valueStyle, strings.Repeat("-", 9), strings.Repeat("-", 9)))
+		} else {
+			b.WriteString("\n")
+		}
+	}
 
 	if container.RawLabels != "" {
 		dl := container.Labels
@@ -102,6 +125,9 @@ func RenderDetailViewFooter(width int) string {
 }
 
 func RenderField(labelStyle, valueStyle lipgloss.Style, label, value string) string {
+	if strings.Contains(label, "-") {
+		return labelStyle.Render(label) + valueStyle.Render(value) + "\n"
+	}
 	return labelStyle.Render(label+":") + valueStyle.Render(value) + "\n"
 }
 

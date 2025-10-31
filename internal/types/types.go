@@ -36,7 +36,8 @@ type Container struct {
 	Mounts       string `json:"Mounts"`
 	Names        string `json:"Names"`
 	Networks     string `json:"Networks"`
-	Ports        string `json:"Ports"`
+	RawPorts     string `json:"Ports"`
+	Ports        Ports
 	RunningFor   string `json:"RunningFor"`
 	Size         string `json:"Size"`
 	State        string `json:"State"`
@@ -66,3 +67,13 @@ type ContainersMsg []Container
 type InspectMsg Container
 
 type TickMsg time.Time
+
+type PortMap struct {
+	Ipv6          string
+	Ipv4          string
+	InternalRange string
+	ExternalRange string
+	Protocol      string
+}
+
+type Ports []PortMap

@@ -2,6 +2,7 @@ package docker
 
 import (
 	"dockerydo/internal/types"
+	"regexp"
 	"strings"
 )
 
@@ -53,5 +54,63 @@ func parseLabels(labelsStr string) *types.DockerLabels {
 	}
 
 	return labels
+}
 
+func parsePort(portMapping string) types.Ports {
+	const (
+		ipv6Pattern          = `\[(?P<ipv6>[:a-fA-F0-9]+)\]`
+		ipv4Pattern          = `(?P<ipv4>[\d.]+)`
+		addressPattern       = `(?:(?:` + ipv6Pattern + `|` + ipv4Pattern + `):)?`
+		hostPortPattern      = `(?P<host_port>\d+(?:-\d+)?)`
+		containerPortPattern = `(?:->(?P<container_port>\d+(?:-\d+)?))?`
+		protocolPattern      = `/(?P<protocol>\w+)`
+	)
+	portRegex := regexp.MustCompile(
+		`^` +
+			addressPattern +
+			hostPortPattern +
+			containerPortPattern +
+			protocolPattern +
+			`$`,
+	)
+	portEntries := strings.Split(portMapping, ",")
+	var ports types.Ports
+
+	for _, portEntry := range portEntries {
+		var portMap types.PortMap
+		portEntry = strings.TrimSpace(portEntry)
+		matches := portRegex.FindStringSubmatch(portEntry)
+		if matches == nil {
+			return types.Ports{}
+		}
+
+		names := portRegex.SubexpNames()
+
+		result := make(map[string]string)
+		for i, name := range names {
+			if i != 0 && name != "" {
+				result[name] = matches[i]
+			}
+		}
+
+		if result["ipv6"] != "" {
+			portMap.Ipv6 = result["ipv6"]
+		}
+		if result["ipv4"] != "" {
+			portMap.Ipv4 = result["ipv4"]
+		}
+		if result["host_port"] != "" {
+			portMap.InternalRange = result["host_port"]
+		}
+		if result["container_port"] != "" {
+			portMap.ExternalRange = result["container_port"]
+		}
+		if result["protocol"] != "" {
+			portMap.Protocol = result["protocol"]
+		}
+		ports = append(ports, portMap)
+
+	}
+
+	return ports
 }
