@@ -17,6 +17,7 @@ func View(m types.Model) string {
 	}
 	style := lipgloss.NewStyle().
 		Width(m.Width).
+		Background(lipgloss.Color(colors.Base)).
 		Align(lipgloss.Center)
 
 	return style.Render(m.Table.View() + RenderTableFooter(m.Width))

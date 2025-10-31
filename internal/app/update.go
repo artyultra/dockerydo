@@ -65,10 +65,9 @@ func Update(msg tea.Msg, m types.Model) (types.Model, tea.Cmd) {
 			rows = append(rows, table.Row{
 				container.Names,
 				container.ID,
-				container.RunningFor,
 				container.State,
-				container.ExternalPort,
-				container.InternalPort,
+				container.RunningFor,
+				ui.FormatPortsForTable(container),
 			})
 		}
 		m.Table.SetRows(rows)

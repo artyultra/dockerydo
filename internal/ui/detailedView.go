@@ -18,11 +18,13 @@ func RenderHeader(m types.Model) string {
 	titleStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color(colors.Mauve)).
+		Background(lipgloss.Color(colors.Base)).
 		Align(lipgloss.Center).
 		Width(m.Width).
 		MarginTop(1)
 
 	dividerStyle := lipgloss.NewStyle().
+		Background(lipgloss.Color(colors.Base)).
 		Foreground(lipgloss.Color(colors.Surface1))
 
 	var b strings.Builder
@@ -41,6 +43,7 @@ func RenderDetailedView(m types.Model) string {
 	sectionHeaderStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color(colors.Blue)).
+		Background(lipgloss.Color(colors.Base)).
 		Align(lipgloss.Left).
 		MarginTop(1).
 		MarginBottom(1)
@@ -48,14 +51,17 @@ func RenderDetailedView(m types.Model) string {
 	labelStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color(colors.Yellow)).
+		Background(lipgloss.Color(colors.Base)).
 		Width(18).
 		Align(lipgloss.Right)
 
 	valueStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Text)).
+		Background(lipgloss.Color(colors.Base)).
 		MarginLeft(1)
 
 	containerStyle := lipgloss.NewStyle().
+		Background(lipgloss.Color(colors.Base)).
 		Margin(0, 2).
 		Width(width).
 		Height(m.Height - 4)
@@ -186,4 +192,3 @@ func RenderField(labelStyle, valueStyle lipgloss.Style, label, value string) str
 	}
 	return labelStyle.Render(label+":") + valueStyle.Render(value) + "\n"
 }
-
