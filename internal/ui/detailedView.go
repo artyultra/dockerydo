@@ -36,6 +36,7 @@ func RenderHeader(m types.Model) string {
 func RenderDetailedView(m types.Model) string {
 	container := m.SelectedContainer
 	width := m.Width
+	maxValueWidth := width - 25 // Reserve space for labels and margins
 
 	sectionHeaderStyle := lipgloss.NewStyle().
 		Bold(true).
@@ -47,7 +48,7 @@ func RenderDetailedView(m types.Model) string {
 	labelStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color(colors.Yellow)).
-		Width(15).
+		Width(18).
 		Align(lipgloss.Right)
 
 	valueStyle := lipgloss.NewStyle().
@@ -61,57 +62,112 @@ func RenderDetailedView(m types.Model) string {
 
 	var b strings.Builder
 
-	b.WriteString(sectionHeaderStyle.Render("General Info") + "\n")
-	b.WriteString(RenderField(labelStyle, valueStyle, "ID", truncate(container.ID)))
-	b.WriteString(RenderField(labelStyle, valueStyle, "Name", truncate(container.Names)))
-	b.WriteString(RenderField(labelStyle, valueStyle, "State", truncate(container.State)))
-	b.WriteString(RenderField(labelStyle, valueStyle, "Time up", truncate(container.RunningFor)))
-	b.WriteString(RenderField(labelStyle, valueStyle, "Image", truncate(container.Image)))
-	b.WriteString(RenderField(labelStyle, valueStyle, "Creation date", truncate(container.CreatedAt)))
-	b.WriteString(RenderField(labelStyle, valueStyle, "Command", truncate(container.Command)))
-	b.WriteString(RenderField(labelStyle, valueStyle, "Size RW", truncate(container.Size)))
+	// General Info Section
+	b.WriteString(sectionHeaderStyle.Render("┌─ General Info") + "\n")
+	b.WriteString(RenderField(labelStyle, valueStyle, "ID", smartTruncate(container.ID, 64)))
+	b.WriteString(RenderField(labelStyle, valueStyle, "Name", smartTruncate(container.Names, maxValueWidth)))
+	b.WriteString(RenderField(labelStyle, valueStyle, "State", container.State))
+	b.WriteString(RenderField(labelStyle, valueStyle, "Running For", smartTruncate(container.RunningFor, maxValueWidth)))
+	b.WriteString(RenderField(labelStyle, valueStyle, "Image", smartTruncate(container.Image, maxValueWidth)))
+	b.WriteString(RenderField(labelStyle, valueStyle, "Created At", smartTruncate(container.CreatedAt, maxValueWidth)))
+	b.WriteString(RenderField(labelStyle, valueStyle, "Command", smartTruncate(container.Command, maxValueWidth)))
+	b.WriteString(RenderField(labelStyle, valueStyle, "Size", container.Size))
 
-	b.WriteString("\n")
-	b.WriteString(sectionHeaderStyle.Render("Ports") + "\n")
-	for i, portMap := range container.Ports {
-		if portMap.Ipv6 != "" {
-			b.WriteString(RenderField(labelStyle, valueStyle, "IPv6", truncate(portMap.Ipv6)))
-		}
-		if portMap.Ipv4 != "" {
-			b.WriteString(RenderField(labelStyle, valueStyle, "IPv4", truncate(portMap.Ipv4)))
-		}
-		if portMap.InternalRange != "" {
-			b.WriteString(RenderField(labelStyle, valueStyle, "Internal", truncate(portMap.InternalRange)))
-		}
-		if portMap.ExternalRange != "" {
-			b.WriteString(RenderField(labelStyle, valueStyle, "External", truncate(portMap.ExternalRange)))
-		}
-		if portMap.Protocol != "" {
-			b.WriteString(RenderField(labelStyle, valueStyle, "Protocol", truncate(portMap.Protocol)))
-		}
-		if i != len(container.Ports)-1 {
-			b.WriteString(RenderField(labelStyle, valueStyle, strings.Repeat("-", 9), strings.Repeat("-", 9)))
-		} else {
-			b.WriteString("\n")
+	// Ports Section
+	if len(container.Ports) > 0 {
+		b.WriteString("\n")
+		b.WriteString(sectionHeaderStyle.Render("┌─ Network Ports") + "\n")
+		for _, portMap := range container.Ports {
+			portDisplay := formatPortMapping(portMap)
+			if portDisplay != "" {
+				b.WriteString(labelStyle.Render("→") + valueStyle.Render(portDisplay) + "\n")
+			}
 		}
 	}
 
+	// Compose Labels Section
 	if container.RawLabels != "" {
 		dl := container.Labels
-		b.WriteString(sectionHeaderStyle.Render(" Compose Labels") + "\n")
-		b.WriteString(RenderField(labelStyle, valueStyle, "Project", truncate(dl.ComposeProject)))
-		b.WriteString(RenderField(labelStyle, valueStyle, "Service", truncate(dl.ComposeService)))
-		b.WriteString(RenderField(labelStyle, valueStyle, "Image", truncate(dl.ComposeImage)))
-		b.WriteString(RenderField(labelStyle, valueStyle, "Working_dir", truncate(dl.ComposeOneoff)))
-		b.WriteString(RenderField(labelStyle, valueStyle, "Config_files", truncate(dl.ComposeConfigFiles)))
-		b.WriteString(RenderField(labelStyle, valueStyle, "Config_hash", truncate(dl.ComposeConfigHash)))
-		b.WriteString(RenderField(labelStyle, valueStyle, "Container_num", truncate(dl.ComposeContainerNum)))
-		b.WriteString(RenderField(labelStyle, valueStyle, "Depends_on", truncate(dl.ComposeDependsOn)))
-		b.WriteString(RenderField(labelStyle, valueStyle, "Version", truncate(dl.ComposeVersion)))
+		// Only show section if at least one label has content
+		hasContent := dl.ComposeProject != "" || dl.ComposeService != "" || dl.ComposeImage != ""
+
+		if hasContent {
+			b.WriteString("\n")
+			b.WriteString(sectionHeaderStyle.Render("┌─ Docker Compose") + "\n")
+			if dl.ComposeProject != "" {
+				b.WriteString(RenderField(labelStyle, valueStyle, "Project", smartTruncate(dl.ComposeProject, maxValueWidth)))
+			}
+			if dl.ComposeService != "" {
+				b.WriteString(RenderField(labelStyle, valueStyle, "Service", smartTruncate(dl.ComposeService, maxValueWidth)))
+			}
+			if dl.ComposeImage != "" {
+				b.WriteString(RenderField(labelStyle, valueStyle, "Image", smartTruncate(dl.ComposeImage, maxValueWidth)))
+			}
+			if dl.ComposeConfigFiles != "" {
+				b.WriteString(RenderField(labelStyle, valueStyle, "Config Files", smartTruncate(dl.ComposeConfigFiles, maxValueWidth)))
+			}
+			if dl.ComposeConfigHash != "" {
+				b.WriteString(RenderField(labelStyle, valueStyle, "Config Hash", smartTruncate(dl.ComposeConfigHash, 16)))
+			}
+			if dl.ComposeContainerNum != "" {
+				b.WriteString(RenderField(labelStyle, valueStyle, "Container Number", dl.ComposeContainerNum))
+			}
+			if dl.ComposeDependsOn != "" {
+				b.WriteString(RenderField(labelStyle, valueStyle, "Depends On", smartTruncate(dl.ComposeDependsOn, maxValueWidth)))
+			}
+			if dl.ComposeVersion != "" {
+				b.WriteString(RenderField(labelStyle, valueStyle, "Version", dl.ComposeVersion))
+			}
+		}
 	}
 
 	return containerStyle.Render(b.String())
 
+}
+
+// formatPortMapping creates a Docker-like port display: "0.0.0.0:8080->80/tcp"
+func formatPortMapping(pm types.PortMap) string {
+	var parts []string
+
+	// IPv4 mapping
+	if pm.Ipv4 != "" && pm.ExternalRange != "" && pm.InternalRange != "" {
+		proto := pm.Protocol
+		if proto == "" {
+			proto = "tcp"
+		}
+		parts = append(parts, pm.Ipv4+":"+pm.ExternalRange+"->"+pm.InternalRange+"/"+proto)
+	}
+
+	// IPv6 mapping
+	if pm.Ipv6 != "" && pm.ExternalRange != "" && pm.InternalRange != "" {
+		proto := pm.Protocol
+		if proto == "" {
+			proto = "tcp"
+		}
+		parts = append(parts, "["+pm.Ipv6+"]:"+pm.ExternalRange+"->"+pm.InternalRange+"/"+proto)
+	}
+
+	// Internal only (no external mapping)
+	if pm.InternalRange != "" && pm.ExternalRange == "" {
+		proto := pm.Protocol
+		if proto == "" {
+			proto = "tcp"
+		}
+		parts = append(parts, pm.InternalRange+"/"+proto)
+	}
+
+	return strings.Join(parts, ", ")
+}
+
+// smartTruncate only truncates if the string exceeds the max length
+func smartTruncate(s string, maxLen int) string {
+	if maxLen <= 0 || len(s) <= maxLen {
+		return s
+	}
+	if maxLen <= 3 {
+		return s[:maxLen]
+	}
+	return s[:maxLen-3] + "..."
 }
 
 func RenderDetailViewFooter(width int) string {
@@ -131,14 +187,3 @@ func RenderField(labelStyle, valueStyle lipgloss.Style, label, value string) str
 	return labelStyle.Render(label+":") + valueStyle.Render(value) + "\n"
 }
 
-func truncate(s string, max ...int) string {
-	maxLen := 20 // default
-	if len(max) > 0 {
-		maxLen = max[0]
-	}
-
-	if len(s) <= maxLen {
-		return s
-	}
-	return s[:maxLen-3] + "..."
-}
