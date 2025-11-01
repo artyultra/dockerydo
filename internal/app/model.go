@@ -17,7 +17,8 @@ func tickCmd() tea.Cmd {
 
 func NewModel() types.Model {
 	return types.Model{
-		Table: ui.NewTable(),
+		Table:        ui.NewTable(),
+		ShowErrPopup: false,
 	}
 }
 

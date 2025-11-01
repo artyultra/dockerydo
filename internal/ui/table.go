@@ -121,11 +121,40 @@ func max(a, b int) int {
 }
 
 func RenderTableFooter(width int) string {
+	// Style for key bindings
+	keyStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(colors.Mauve)).
+		Bold(true)
+
+	// Style for descriptions
+	descStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(colors.Text))
+
+	// Style for separators
+	sepStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(colors.Surface1))
+
+	// Build footer sections
+	nav := keyStyle.Render("↑/↓") + descStyle.Render(" Navigate")
+	view := keyStyle.Render("Enter") + descStyle.Render(" Details")
+	refresh := keyStyle.Render("r") + descStyle.Render(" Refresh")
+
+	start := keyStyle.Render("s") + descStyle.Render(" Start/Stop")
+	pause := keyStyle.Render("p") + descStyle.Render(" Pause/Unpause")
+	remove := keyStyle.Render("d/D") + descStyle.Render(" Remove")
+
+	quit := keyStyle.Render("q") + descStyle.Render(" Quit")
+
+	sep := sepStyle.Render(" │ ")
+
+	// Combine into logical groups
+	line1 := nav + sep + view + sep + refresh + sep + start + sep + pause + sep + remove + sep + quit
+
 	footerStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color(colors.Lavender)).
 		Align(lipgloss.Center).
 		Width(width).
-		MarginTop(1)
+		MarginTop(1).
+		Padding(0, 1)
 
-	return footerStyle.Render("\n↑/↓: Navigate • enter: Details • r: Refresh • q: Quit\n")
+	return footerStyle.Render(line1)
 }

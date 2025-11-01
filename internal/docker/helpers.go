@@ -114,3 +114,13 @@ func parsePort(portMapping string) types.Ports {
 
 	return ports
 }
+
+func ParseOpResponse(resp string) types.OpFailedMsg {
+	parts := strings.Split(resp, "\n")
+	var result types.OpFailedMsg
+	result.DaemonError = strings.ReplaceAll(parts[0], "Error response from daemon: ", "")
+	result.Error = strings.ReplaceAll(parts[1], "Error: ", "")
+
+	return result
+
+}

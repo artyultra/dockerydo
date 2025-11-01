@@ -4,7 +4,7 @@
 
 ### Container Operations
 
-- [ ] Implement start/stop/restart container actions
+- [~] Implement start/stop/restart container actions
 - [ ] Add container removal with confirmation prompt
 - [ ] Add pause/unpause functionality
 - [ ] Implement container creation/run interface
@@ -20,10 +20,10 @@
 
 ### Better Port Display
 
-- [ ] Handle complex port mappings (multiple ports)
-- [ ] Display all port mappings for a container (not just first)
-- [ ] Add protocol display (TCP/UDP)
-- [ ] Show IP binding info (0.0.0.0 vs specific IPs)
+- [x] Handle complex port mappings (multiple ports)
+- [x] Display all port mappings for a container (not just first)
+- [x] Add protocol display (TCP/UDP)
+- [x] Show IP binding info (0.0.0.0 vs specific IPs)
 
 ## =á Medium Priority - Enhanced Features
 

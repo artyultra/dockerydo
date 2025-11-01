@@ -28,6 +28,16 @@ func Update(msg tea.Msg, m types.Model) (types.Model, tea.Cmd) {
 		return m, tea.Batch(docker.GetContainers, tickCmd())
 
 	case tea.KeyMsg:
+		if m.ShowErrPopup {
+			switch msg.String() {
+			case "enter", "esc":
+				m.ShowErrPopup = false
+				m.ErrPopUpMsg = ""
+				m.Err = nil
+				return m, nil
+			}
+		}
+
 		// handle inspect mode scrolling
 		if m.Mode == types.ViewModeDetailed {
 			switch msg.String() {
@@ -37,7 +47,8 @@ func Update(msg tea.Msg, m types.Model) (types.Model, tea.Cmd) {
 				// go back to table view
 				m.Mode = types.ViewModeTable
 				m.SelectedContainer = nil
-				return m, nil
+				m.RefreshEnabled = true
+				return m, tea.Batch(docker.GetContainers, tickCmd())
 			case "j", "down":
 				m.ViewPort.ScrollDown(1)
 				return m, nil
@@ -56,6 +67,26 @@ func Update(msg tea.Msg, m types.Model) (types.Model, tea.Cmd) {
 			container := getSelectedContainer(m)
 			if container != nil {
 				return m, docker.InspectContainer(*container)
+			}
+		case "s":
+			container := getSelectedContainer(m)
+			if container != nil {
+				return m, docker.StartStopContainer(*container)
+			}
+		case "p":
+			container := getSelectedContainer(m)
+			if container != nil {
+				return m, docker.PauseUnpauseContainer(*container)
+			}
+		case "D":
+			container := getSelectedContainer(m)
+			if container != nil {
+				return m, docker.RmContainer(*container, true)
+			}
+		case "d":
+			container := getSelectedContainer(m)
+			if container != nil {
+				return m, docker.RmContainer(*container, false)
 			}
 		}
 	case types.ContainersMsg:
@@ -76,6 +107,7 @@ func Update(msg tea.Msg, m types.Model) (types.Model, tea.Cmd) {
 		selectedContainer := types.Container(msg)
 		m.SelectedContainer = &selectedContainer
 		m.ViewPort = viewport.New(m.Width, m.Height-8)
+		m.RefreshEnabled = false
 
 		content := ui.RenderDetailedView(m)
 
@@ -88,11 +120,19 @@ func Update(msg tea.Msg, m types.Model) (types.Model, tea.Cmd) {
 		}
 		return m, nil
 
+	case types.ContainerOpMsg:
+		return m, docker.GetContainers
+
 	case types.ErrMsg:
 		m.Err = msg
+		m.ShowErrPopup = true
+		m.ErrPopUpMsg = msg.Error()
 		return m, nil
 	case types.TickMsg:
-		return m, docker.GetContainers
+		if m.RefreshEnabled {
+			return m, tea.Batch(docker.GetContainers, tickCmd())
+		}
+		return m, nil
 	}
 	m.Table, cmd = m.Table.Update(msg)
 	return m, cmd
