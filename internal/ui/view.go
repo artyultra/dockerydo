@@ -25,7 +25,15 @@ func View(m types.Model) string {
 	}
 
 	if m.ShowErrPopup {
-		return RenderErrPopup(m)
+		return RenderErrPopup(m.ErrPopUpMsg, m.Width, m.Height)
+	}
+
+	if m.ShowFailedOpPopup {
+		return RenderErrPopup(m.FailedOpPopUpMsg, m.Width, m.Height)
+	}
+
+	if m.ShowConfirmPopup {
+		return RenderConfirmationPopup(m.ConfirmPopUpMsg, m.Width, m.Height)
 	}
 
 	return baseView

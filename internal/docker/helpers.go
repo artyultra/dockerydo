@@ -116,11 +116,28 @@ func parsePort(portMapping string) types.Ports {
 }
 
 func ParseOpResponse(resp string) types.OpFailedMsg {
-	parts := strings.Split(resp, "\n")
 	var result types.OpFailedMsg
-	result.DaemonError = strings.ReplaceAll(parts[0], "Error response from daemon: ", "")
-	result.Error = strings.ReplaceAll(parts[1], "Error: ", "")
+
+	// Remove the "Error response from daemon: " prefix
+	msg := strings.TrimPrefix(resp, "Error response from daemon: ")
+	msg = strings.TrimPrefix(msg, "Error: ")
+
+	// Find and truncate container IDs (64 character hex strings)
+	// Match pattern: 64 consecutive hex characters
+	re := regexp.MustCompile(`\b[0-9a-f]{64}\b`)
+	msg = re.ReplaceAllStringFunc(msg, func(id string) string {
+		return truncate(id) // Truncate to 12 characters
+	})
+
+	result.DaemonError = msg
+	result.Error = ""
 
 	return result
+}
 
+func truncate(s string) string {
+	if len(s) <= 12 {
+		return s
+	}
+	return s[:12] + "..."
 }

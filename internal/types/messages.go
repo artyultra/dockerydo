@@ -19,3 +19,5 @@ type OpFailedMsg struct {
 	DaemonError string
 	Error       string
 }
+
+type ConfirmMsg string

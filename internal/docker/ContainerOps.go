@@ -45,14 +45,13 @@ func PauseUnpauseContainer(c types.Container) tea.Cmd {
 		case "paused":
 			dockerCmd = "unpause"
 		default:
-			return types.ErrMsg(fmt.Errorf("container %s is in an incompatible state: %s", c.Names, c.State))
+			dockerCmd = "unpause"
 		}
 
 		cmd := exec.Command("docker", dockerCmd, c.ID)
-		out, _ := cmd.Output()
-
+		out, err := cmd.CombinedOutput()
 		resp := strings.TrimSpace(string(out))
-		if resp != c.ID {
+		if err != nil {
 			return ParseOpResponse(resp)
 		}
 

@@ -23,5 +23,9 @@ type Model struct {
 	ViewPort          viewport.Model
 	RefreshEnabled    bool
 	ShowErrPopup      bool
+	ShowFailedOpPopup bool
+	ShowConfirmPopup  bool
+	FailedOpPopUpMsg  string
 	ErrPopUpMsg       string
+	ConfirmPopUpMsg   string
 }

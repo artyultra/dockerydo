@@ -1,139 +1,36 @@
 package app
 
 import (
+	"dockerydo/internal/app/handlers"
 	"dockerydo/internal/docker"
 	"dockerydo/internal/types"
-	"dockerydo/internal/ui"
 
-	"github.com/charmbracelet/bubbles/table"
-	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 func Update(msg tea.Msg, m types.Model) (types.Model, tea.Cmd) {
-	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.Width = msg.Width
-		m.Height = msg.Height
-		ui.UpdateTable(&m)
-
-		if m.Mode == types.ViewModeDetailed && m.SelectedContainer != nil {
-			content := ui.RenderDetailedView(m)
-			m.ViewPort.Width = m.Width
-			m.ViewPort.Height = m.Height
-			m.ViewPort.SetContent(content)
-		}
-
-		return m, tea.Batch(docker.GetContainers, tickCmd())
-
+		return handlers.HandleWindowResize(msg, m)
 	case tea.KeyMsg:
-		if m.ShowErrPopup {
-			switch msg.String() {
-			case "enter", "esc":
-				m.ShowErrPopup = false
-				m.ErrPopUpMsg = ""
-				m.Err = nil
-				return m, nil
-			}
-		}
-
-		// handle inspect mode scrolling
-		if m.Mode == types.ViewModeDetailed {
-			switch msg.String() {
-			case "ctrl+c", "q":
-				return m, tea.Quit
-			case "esc":
-				// go back to table view
-				m.Mode = types.ViewModeTable
-				m.SelectedContainer = nil
-				m.RefreshEnabled = true
-				return m, tea.Batch(docker.GetContainers, tickCmd())
-			case "j", "down":
-				m.ViewPort.ScrollDown(1)
-				return m, nil
-			case "k", "up":
-				m.ViewPort.ScrollUp(1)
-				return m, nil
-			}
-		}
-		// table commands
-		switch msg.String() {
-		case "ctrl+c", "q":
-			return m, tea.Quit
-		case "r":
-			return m, docker.GetContainers
-		case "enter":
-			container := getSelectedContainer(m)
-			if container != nil {
-				return m, docker.InspectContainer(*container)
-			}
-		case "s":
-			container := getSelectedContainer(m)
-			if container != nil {
-				return m, docker.StartStopContainer(*container)
-			}
-		case "p":
-			container := getSelectedContainer(m)
-			if container != nil {
-				return m, docker.PauseUnpauseContainer(*container)
-			}
-		case "D":
-			container := getSelectedContainer(m)
-			if container != nil {
-				return m, docker.RmContainer(*container, true)
-			}
-		case "d":
-			container := getSelectedContainer(m)
-			if container != nil {
-				return m, docker.RmContainer(*container, false)
-			}
-		}
+		return handlers.HandleKeyPress(msg, m)
 	case types.ContainersMsg:
-		m.Containers = msg
-		rows := []table.Row{}
-		for _, container := range msg {
-			rows = append(rows, table.Row{
-				container.Names,
-				container.ID,
-				container.State,
-				container.RunningFor,
-				ui.FormatPortsForTable(container),
-			})
-		}
-		m.Table.SetRows(rows)
-		return m, nil
+		return handlers.HandleContainersUpdate(msg, m)
 	case types.InspectMsg:
-		selectedContainer := types.Container(msg)
-		m.SelectedContainer = &selectedContainer
-		m.ViewPort = viewport.New(m.Width, m.Height-8)
-		m.RefreshEnabled = false
-
-		content := ui.RenderDetailedView(m)
-
-		if m.Mode == types.ViewModeDetailed {
-			m.ViewPort.SetContent(content)
-		} else {
-			m.Mode = types.ViewModeDetailed
-
-			m.ViewPort.SetContent(content)
-		}
-		return m, nil
-
+		return handlers.HandleInspect(msg, m)
 	case types.ContainerOpMsg:
 		return m, docker.GetContainers
-
+	case types.OpFailedMsg:
+		return handlers.HandleFailedOp(msg, m)
+	case types.ConfirmMsg:
+		return handlers.HandleConfirmation(msg, m)
 	case types.ErrMsg:
-		m.Err = msg
-		m.ShowErrPopup = true
-		m.ErrPopUpMsg = msg.Error()
-		return m, nil
+		return handlers.HandleError(msg, m)
 	case types.TickMsg:
-		if m.RefreshEnabled {
-			return m, tea.Batch(docker.GetContainers, tickCmd())
-		}
-		return m, nil
+		return handlers.HandleTick(m)
 	}
+
+	var cmd tea.Cmd
 	m.Table, cmd = m.Table.Update(msg)
 	return m, cmd
 }
