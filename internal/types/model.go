@@ -50,10 +50,10 @@ type Model struct {
 	Networks   []struct{}
 
 	// List Cursors
-	ContainersCursor int
-	ImageCursor      int
-	VolumeCursor     int
-	NetworkCursor    int
+	ContainerCursor int
+	ImageCursor     int
+	VolumeCursor    int
+	NetworkCursor   int
 
 	// Scroll position for list
 	ContainerScrol int
