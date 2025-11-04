@@ -11,14 +11,14 @@ import (
 
 func GetContainers() tea.Msg {
 	cmd := exec.Command("docker", "ps", "-a", "--format", "{{json .}}")
-	out, err := cmd.Output()
+	output, err := cmd.Output()
 	if err != nil {
 		return types.ErrMsg(err)
 	}
 
 	var containers []types.Container
 
-	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+	lines := splitLines(string(output))
 
 	for _, line := range lines {
 		if line == "" {
