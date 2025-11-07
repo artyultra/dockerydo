@@ -3,6 +3,7 @@ package app
 import (
 	"dockerydo/internal/app/utils"
 	"dockerydo/internal/docker"
+	"dockerydo/internal/theme"
 	"dockerydo/internal/types"
 
 	"github.com/charmbracelet/bubbles/viewport"
@@ -18,6 +19,7 @@ func NewModel() types.Model {
 		RefreshEnabled:  true,
 		DetailsViewPort: viewport.New(0, 0),
 		LogsViewPort:    viewport.New(0, 0),
+		Theme:           theme.Mocha,
 	}
 }
 

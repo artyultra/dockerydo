@@ -14,6 +14,8 @@ func HandleError(msg types.ErrMsg, m types.Model) (types.Model, tea.Cmd) {
 }
 
 func HandleConfirmation(msg types.ConfirmMsg, m types.Model) (types.Model, tea.Cmd) {
+	m.ShowConfirmPopup = true
+	m.ConfirmPopUpMsg = string(msg)
 	return m, nil
 }
 

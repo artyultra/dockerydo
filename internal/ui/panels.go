@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"dockerydo/internal/theme"
 	"dockerydo/internal/types"
 	"fmt"
 	"strings"
@@ -8,10 +9,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func renderListPanel(m types.Model, width, height int) string {
+func RenderListPanel(m types.Model, width, height int) string {
 	title := ""
 	items := []string{}
 	cursor := 0
+	colors := m.Theme
 
 	switch m.ActiveTab {
 	case types.TabContainers:
@@ -19,18 +21,82 @@ func renderListPanel(m types.Model, width, height int) string {
 		cursor = m.ContainerCursor
 		for i, c := range m.Containers {
 			status := getStatusIcon(c.State)
-			name := truncateString(c.Names, 25)
+			name := truncateString(c.Names, 35)
 			line := fmt.Sprintf("%s %s", status, name)
 			if i == cursor {
 				line = lipgloss.NewStyle().
-					Foreground(lipgloss.Color(m.Theme.Crust)).
-					Background(lipgloss.Color(m.Theme.Mauve)).
+					Foreground(lipgloss.Color(colors.Crust)).
+					Background(lipgloss.Color(colors.Mauve)).
 					Bold(true).
 					Width(width - 4).
-					Render("▸ " + line)
+					Render("▸" + line)
 			} else {
 				line = lipgloss.NewStyle().
-					Foreground(lipgloss.Color(m.Theme.Text)).
+					Foreground(lipgloss.Color(colors.Text)).
+					Width(width - 4).
+					Render(" " + line)
+			}
+			items = append(items, line)
+		}
+	case types.TabImages:
+		title = "Images"
+		cursor = m.ImageCursor
+		for i, img := range m.Images {
+			name := truncateString(fmt.Sprintf("%s%s", img.Repository, img.Tag), 35)
+			size := img.Size
+			line := fmt.Sprintf("%s %s", name, size)
+			if i == cursor {
+				line = lipgloss.NewStyle().
+					Foreground(lipgloss.Color(colors.Crust)).
+					Background(lipgloss.Color(colors.Mauve)).
+					Bold(true).
+					Width(width - 4).
+					Render("▸" + line)
+			} else {
+				line = lipgloss.NewStyle().
+					Foreground(lipgloss.Color(colors.Text)).
+					Width(width - 4).
+					Render(" " + line)
+			}
+			items = append(items, line)
+		}
+	case types.TabVolumes:
+		title = "Volumes"
+		cursor = m.VolumeCursor
+		for i, vol := range m.Volumes {
+			name := truncateString(vol.Name, 35)
+			if i == cursor {
+				name = lipgloss.NewStyle().
+					Foreground(lipgloss.Color(colors.Crust)).
+					Background(lipgloss.Color(colors.Mauve)).
+					Bold(true).
+					Width(width - 4).
+					Render("▸" + name)
+			} else {
+				name = lipgloss.NewStyle().
+					Foreground(lipgloss.Color(colors.Text)).
+					Width(width - 4).
+					Render(" " + name)
+			}
+			items = append(items, name)
+		}
+	case types.TabNetworks:
+		title = "Networks"
+		cursor = m.NetworkCursor
+		for i, net := range m.Networks {
+			name := truncateString(net.Name, 25)
+			driver := net.Driver
+			line := fmt.Sprintf("%s %s", name, driver)
+			if i == cursor {
+				line = lipgloss.NewStyle().
+					Foreground(lipgloss.Color(colors.Crust)).
+					Background(lipgloss.Color(colors.Mauve)).
+					Bold(true).
+					Width(width - 4).
+					Render("▸" + line)
+			} else {
+				line = lipgloss.NewStyle().
+					Foreground(lipgloss.Color(colors.Text)).
 					Width(width - 4).
 					Render(" " + line)
 			}
@@ -39,10 +105,10 @@ func renderListPanel(m types.Model, width, height int) string {
 	}
 
 	titleStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color(m.Theme.Lavender)).
+		Foreground(lipgloss.Color(colors.Lavender)).
 		Bold(true).
 		Padding(0, 1).
-		Background(lipgloss.Color(m.Theme.Surface0)).
+		Background(lipgloss.Color(colors.Surface0)).
 		Width(width - 2)
 
 	header := titleStyle.Render(title)
@@ -50,7 +116,7 @@ func renderListPanel(m types.Model, width, height int) string {
 	// handle empty list
 	if len(items) == 0 {
 		emptyMsg := lipgloss.NewStyle().
-			Foreground(lipgloss.Color(m.Theme.Overlay0)).
+			Foreground(lipgloss.Color(colors.Overlay0)).
 			Italic(true).
 			Padding(2, 2).
 			Render("No items")
@@ -114,8 +180,8 @@ func renderListPanel(m types.Model, width, height int) string {
 
 	containerStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color(m.Theme.Surface1)).
-		Background(lipgloss.Color(m.Theme.Base)).
+		BorderForeground(lipgloss.Color(colors.Surface1)).
+		Background(lipgloss.Color(colors.Base)).
 		Width(containerWidth).
 		Height(containerHeight).
 		Padding(1)
@@ -124,6 +190,7 @@ func renderListPanel(m types.Model, width, height int) string {
 }
 
 func renderMainPanel(m types.Model, width, height int) string {
+	colors := m.Theme
 	var content string
 	title := "Details"
 
@@ -150,8 +217,8 @@ func renderMainPanel(m types.Model, width, height int) string {
 	}
 
 	titleStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color(m.Theme.Lavender)).
-		Background(lipgloss.Color(m.Theme.Surface0)).
+		Foreground(lipgloss.Color(colors.Lavender)).
+		Background(lipgloss.Color(colors.Surface0)).
 		Bold(true).
 		Padding(0, 1).
 		Width(width - 2)
@@ -175,8 +242,8 @@ func renderMainPanel(m types.Model, width, height int) string {
 
 	containerStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color(m.Theme.Surface1)).
-		Background(lipgloss.Color(m.Theme.Base)).
+		BorderForeground(lipgloss.Color(colors.Surface1)).
+		Background(lipgloss.Color(colors.Base)).
 		Width(containerWidth).
 		Height(containerHeight).
 		Padding(1)
@@ -200,33 +267,34 @@ func getStatusIcon(state string) string {
 
 // renderDetails renders entity details based on active tab
 func renderDetails(m types.Model, width, height int) string {
+	colors := m.Theme
 	switch m.ActiveTab {
 	case types.TabContainers:
 		if len(m.Containers) == 0 || m.ContainerCursor >= len(m.Containers) {
-			return renderEmpty("No container selected")
+			return renderEmpty("No container selected", colors)
 		}
-		return renderContainerDetails(m.Containers[m.ContainerCursor], width)
+		return RenderContainerDetails(m.Containers[m.ContainerCursor], width, m.Theme)
 
 	case types.TabImages:
 		if len(m.Images) == 0 || m.ImageCursor >= len(m.Images) {
-			return renderEmpty("No image selected")
+			return renderEmpty("No image selected", colors)
 		}
-		return renderImageDetails(m.Images[m.ImageCursor], width)
+		return renderImageDetails(m.Images[m.ImageCursor], width, colors)
 
 	case types.TabVolumes:
 		if len(m.Volumes) == 0 || m.VolumeCursor >= len(m.Volumes) {
-			return renderEmpty("No volume selected")
+			return renderEmpty("No volume selected", colors)
 		}
-		return renderVolumeDetails(m.Volumes[m.VolumeCursor], width)
+		return renderVolumeDetails(m.Volumes[m.VolumeCursor], width, colors)
 
 	case types.TabNetworks:
 		if len(m.Networks) == 0 || m.NetworkCursor >= len(m.Networks) {
-			return renderEmpty("No network selected")
+			return renderEmpty("No network selected", colors)
 		}
-		return renderNetworkDetails(m.Networks[m.NetworkCursor], width)
+		return renderNetworkDetails(m.Networks[m.NetworkCursor], width, colors)
 	}
 
-	return renderEmpty("Unknown tab")
+	return renderEmpty("Unknown tab", colors)
 }
 
 func truncateString(s string, maxLen int) string {
@@ -236,7 +304,7 @@ func truncateString(s string, maxLen int) string {
 	return s[:maxLen-3] + "..."
 }
 
-func renderEmpty(msg string) string {
+func renderEmpty(msg string, colors theme.Colors) string {
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Overlay0)).
 		Italic(true).

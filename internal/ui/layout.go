@@ -28,7 +28,7 @@ func RenderBaseView(m types.Model) string {
 
 	// render components
 	header := renderTabBar(m)
-	leftPanel := renderListPanel(m, leftWidth, contentHight)
+	leftPanel := RenderListPanel(m, leftWidth, contentHight)
 	rightPanel := renderMainPanel(m, rightWidth, contentHight)
 	footer := renderFooter(m)
 
@@ -51,6 +51,7 @@ func RenderBaseView(m types.Model) string {
 }
 
 func renderTabBar(m types.Model) string {
+	colors := m.Theme
 	tabs := []struct {
 		names  string
 		tab    types.TabType
@@ -70,14 +71,14 @@ func renderTabBar(m types.Model) string {
 		if m.ActiveTab == t.tab {
 			// active tab
 			style = style.
-				Foreground(lipgloss.Color(m.Theme.Crust)).
-				Background(lipgloss.Color(m.Theme.Mauve)).
+				Foreground(lipgloss.Color(colors.Crust)).
+				Background(lipgloss.Color(colors.Mauve)).
 				Bold(true)
 		} else {
 			// inactive tab
 			style = style.
-				Foreground(lipgloss.Color(m.Theme.Subtext0)).
-				Background(lipgloss.Color(m.Theme.Surface0))
+				Foreground(lipgloss.Color(colors.Subtext0)).
+				Background(lipgloss.Color(colors.Surface0))
 		}
 
 		label := fmt.Sprintf("[%d] %s", t.number, t.names)
@@ -88,13 +89,14 @@ func renderTabBar(m types.Model) string {
 
 	containerStyle := lipgloss.NewStyle().
 		Width(m.Width).
-		Background(lipgloss.Color(m.Theme.Base)).
+		Background(lipgloss.Color(colors.Base)).
 		Padding(1, 0)
 
 	return containerStyle.Render(tabBar)
 }
 
 func renderFooter(m types.Model) string {
+	colors := m.Theme
 	var keys string
 
 	switch m.ActiveTab {
@@ -114,8 +116,8 @@ func renderFooter(m types.Model) string {
 	}
 
 	style := lipgloss.NewStyle().
-		Foreground(lipgloss.Color(m.Theme.Subtext0)).
-		Background(lipgloss.Color(m.Theme.Surface0)).
+		Foreground(lipgloss.Color(colors.Subtext0)).
+		Background(lipgloss.Color(colors.Surface0)).
 		Padding(0, 2).
 		Width(m.Width)
 	return style.Render(keys)

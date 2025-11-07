@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"dockerydo/internal/theme"
 	"dockerydo/internal/types"
 	"fmt"
 	"strings"
@@ -9,7 +10,7 @@ import (
 )
 
 // renderContainerDetails renders detailed info for a container
-func renderContainerDetails(c types.Container, width int) string {
+func RenderContainerDetails(c types.Container, width int, colors theme.Colors) string {
 	labelStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Lavender)).
 		Bold(true).
@@ -22,11 +23,11 @@ func renderContainerDetails(c types.Container, width int) string {
 	var lines []string
 
 	// General Info
-	lines = append(lines, renderSection("General"))
+	lines = append(lines, renderSection("General", colors))
 	lines = append(lines, renderField(labelStyle, valueStyle, "Name", c.Names))
 	lines = append(lines, renderField(labelStyle, valueStyle, "ID", c.ID[:12]))
 	lines = append(lines, renderField(labelStyle, valueStyle, "Image", c.Image))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Status", formatStatus(c.State, c.Status)))
+	lines = append(lines, renderField(labelStyle, valueStyle, "Status", formatStatus(c.State, c.Status, colors)))
 	lines = append(lines, renderField(labelStyle, valueStyle, "Created", c.CreatedAt))
 	lines = append(lines, renderField(labelStyle, valueStyle, "Running For", c.RunningFor))
 	if c.Size != "" {
@@ -36,7 +37,7 @@ func renderContainerDetails(c types.Container, width int) string {
 
 	// Ports
 	if len(c.Ports) > 0 {
-		lines = append(lines, renderSection("Ports"))
+		lines = append(lines, renderSection("Ports", colors))
 		for _, port := range c.Ports {
 			portStr := fmt.Sprintf("%s:%s → %s/%s",
 				getIP(port),
@@ -50,7 +51,7 @@ func renderContainerDetails(c types.Container, width int) string {
 
 	// Docker Compose Info
 	if c.Labels != nil && c.Labels.ComposeProject != "" {
-		lines = append(lines, renderSection("Docker Compose"))
+		lines = append(lines, renderSection("Docker Compose", colors))
 		lines = append(lines, renderField(labelStyle, valueStyle, "Project", c.Labels.ComposeProject))
 		if c.Labels.ComposeService != "" {
 			lines = append(lines, renderField(labelStyle, valueStyle, "Service", c.Labels.ComposeService))
@@ -63,7 +64,7 @@ func renderContainerDetails(c types.Container, width int) string {
 
 	// Command
 	if c.Command != "" {
-		lines = append(lines, renderSection("Command"))
+		lines = append(lines, renderSection("Command", colors))
 		lines = append(lines, "  "+valueStyle.Render(c.Command))
 	}
 
@@ -71,7 +72,7 @@ func renderContainerDetails(c types.Container, width int) string {
 }
 
 // renderImageDetails renders detailed info for an image
-func renderImageDetails(img types.Image, width int) string {
+func renderImageDetails(img types.Image, width int, colors theme.Colors) string {
 	labelStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Lavender)).
 		Bold(true).
@@ -83,7 +84,7 @@ func renderImageDetails(img types.Image, width int) string {
 
 	var lines []string
 
-	lines = append(lines, renderSection("Image Details"))
+	lines = append(lines, renderSection("Image Details", colors))
 	lines = append(lines, renderField(labelStyle, valueStyle, "Repository", img.Repository))
 	lines = append(lines, renderField(labelStyle, valueStyle, "Tag", img.Tag))
 	lines = append(lines, renderField(labelStyle, valueStyle, "ID", img.ID))
@@ -97,7 +98,7 @@ func renderImageDetails(img types.Image, width int) string {
 }
 
 // renderVolumeDetails renders detailed info for a volume
-func renderVolumeDetails(vol types.Volume, width int) string {
+func renderVolumeDetails(vol types.Volume, width int, colors theme.Colors) string {
 	labelStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Lavender)).
 		Bold(true).
@@ -109,7 +110,7 @@ func renderVolumeDetails(vol types.Volume, width int) string {
 
 	var lines []string
 
-	lines = append(lines, renderSection("Volume Details"))
+	lines = append(lines, renderSection("Volume Details", colors))
 	lines = append(lines, renderField(labelStyle, valueStyle, "Name", vol.Name))
 	lines = append(lines, renderField(labelStyle, valueStyle, "Driver", vol.Driver))
 	lines = append(lines, renderField(labelStyle, valueStyle, "Mountpoint", vol.Mountpoint))
@@ -122,7 +123,7 @@ func renderVolumeDetails(vol types.Volume, width int) string {
 }
 
 // renderNetworkDetails renders detailed info for a network
-func renderNetworkDetails(net types.Network, width int) string {
+func renderNetworkDetails(net types.Network, width int, colors theme.Colors) string {
 	labelStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Lavender)).
 		Bold(true).
@@ -134,7 +135,7 @@ func renderNetworkDetails(net types.Network, width int) string {
 
 	var lines []string
 
-	lines = append(lines, renderSection("Network Details"))
+	lines = append(lines, renderSection("Network Details", colors))
 	lines = append(lines, renderField(labelStyle, valueStyle, "Name", net.Name))
 	lines = append(lines, renderField(labelStyle, valueStyle, "ID", net.ID[:12]))
 	lines = append(lines, renderField(labelStyle, valueStyle, "Driver", net.Driver))
@@ -150,7 +151,7 @@ func renderNetworkDetails(net types.Network, width int) string {
 }
 
 // Helper functions
-func renderSection(title string) string {
+func renderSection(title string, colors theme.Colors) string {
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Peach)).
 		Bold(true).
@@ -162,7 +163,7 @@ func renderField(labelStyle, valueStyle lipgloss.Style, label, value string) str
 	return labelStyle.Render(label+":") + "  " + valueStyle.Render(value)
 }
 
-func formatStatus(state, status string) string {
+func formatStatus(state, status string, colors theme.Colors) string {
 	statusStyle := lipgloss.NewStyle()
 
 	switch state {

@@ -10,15 +10,15 @@ func View(m types.Model) string {
 
 	// overlay popups
 	if m.ShowErrPopup {
-		return RenderErrPopup(m.ErrPopUpMsg, m.Width, m.Height)
+		return RenderErrPopup(m.ErrPopUpMsg, m.Width, m.Height, m.Theme)
 	}
 
 	if m.ShowFailedOpPopup {
-		return RenderErrPopup(m.FailedOpPopUpMsg, m.Width, m.Height)
+		return RenderErrPopup(m.FailedOpPopUpMsg, m.Width, m.Height, m.Theme)
 	}
 
 	if m.ShowConfirmPopup {
-		return RenderConfirmationPopup(m.ConfirmPopUpMsg, m.Width, m.Height)
+		return RenderConfirmationPopup(m.ConfirmPopUpMsg, m.Width, m.Height, m.Theme)
 	}
 
 	return baseView

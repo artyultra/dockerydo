@@ -30,7 +30,7 @@ func GetNetworks() tea.Msg {
 
 	}
 
-	return types.VolumesMsg([]types.Volume{})
+	return types.NetworksMsg(networks)
 }
 
 func RmNetwork(netId string, force bool) tea.Cmd {
