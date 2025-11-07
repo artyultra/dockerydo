@@ -2,15 +2,13 @@ package ui
 
 import (
 	"dockerydo/internal/types"
-	// "fmt"
-
-	"github.com/charmbracelet/lipgloss"
 )
 
 func View(m types.Model) string {
 	// render base layout
 	baseView := RenderBaseView(m)
 
+	// overlay popups
 	if m.ShowErrPopup {
 		return RenderErrPopup(m.ErrPopUpMsg, m.Width, m.Height)
 	}

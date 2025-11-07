@@ -145,9 +145,43 @@ func renderMainPanel(m types.Model, width, height int) string {
 		}
 		content = m.LogsViewPort.View()
 	} else {
+		//render based on active tab
 		content = renderDetails(m, detailWidth, detailHeight)
 	}
-	return ""
+
+	titleStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(m.Theme.Lavender)).
+		Background(lipgloss.Color(m.Theme.Surface0)).
+		Bold(true).
+		Padding(0, 1).
+		Width(width - 2)
+
+	header := titleStyle.Render(title)
+
+	fullContent := lipgloss.JoinVertical(
+		lipgloss.Left,
+		header,
+		content,
+	)
+
+	containerWidth := width - 2
+	if containerWidth < 5 {
+		containerWidth = 5
+	}
+	containerHeight := height - 2
+	if containerHeight < 3 {
+		containerHeight = 3
+	}
+
+	containerStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color(m.Theme.Surface1)).
+		Background(lipgloss.Color(m.Theme.Base)).
+		Width(containerWidth).
+		Height(containerHeight).
+		Padding(1)
+
+	return containerStyle.Render(fullContent)
 }
 
 // Helper functions

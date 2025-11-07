@@ -10,16 +10,41 @@ import (
 
 func Update(msg tea.Msg, m types.Model) (types.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	// update widnow size
 	case tea.WindowSizeMsg:
 		return handlers.HandleWindowResize(msg, m)
+	// update key press
 	case tea.KeyMsg:
 		return handlers.HandleKeyPress(msg, m)
+	// data updates
 	case types.ContainersMsg:
-		return handlers.HandleContainersUpdate(msg, m)
-	case types.InspectMsg:
-		return handlers.HandleInspect(msg, m)
-	case types.ContainerOpMsg:
-		return m, docker.GetContainers
+		m.Containers = []types.Container(msg)
+		return m, nil
+	case types.ImagesMsg:
+		m.Images = []types.Image(msg)
+		return m, nil
+	case types.VolumesMsg:
+		m.Volumes = []types.Volume(msg)
+		return m, nil
+	case types.NetworksMsg:
+		m.Networks = []types.Network(msg)
+		return m, nil
+	case types.LogsMsg:
+		m.LogsViewPort.SetContent(msg.Log)
+		m.RightPanel = types.PanelLogs
+
+	// operation results
+	case types.DockerOpMsg:
+		switch msg.ResourceType {
+		case types.ContainerResource:
+			return m, docker.GetContainers
+		case types.ImageResource:
+			return m, docker.GetImages
+		case types.VolumeResource:
+			return m, docker.GetVolumes
+		case types.NetworkResource:
+			return m, docker.GetNetworks
+		}
 	case types.OpFailedMsg:
 		return handlers.HandleFailedOp(msg, m)
 	case types.ConfirmMsg:
@@ -29,8 +54,7 @@ func Update(msg tea.Msg, m types.Model) (types.Model, tea.Cmd) {
 	case types.TickMsg:
 		return handlers.HandleTick(m)
 	}
-
 	var cmd tea.Cmd
-	m.Table, cmd = m.Table.Update(msg)
+	m.DetailsViewPort, cmd = m.DetailsViewPort.Update(msg)
 	return m, cmd
 }

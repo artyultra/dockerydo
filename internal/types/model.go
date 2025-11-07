@@ -45,9 +45,9 @@ type Model struct {
 
 	// Data
 	Containers []Container
-	Images     []struct{}
-	Volumes    []struct{}
-	Networks   []struct{}
+	Images     []Image
+	Volumes    []Volume
+	Networks   []Network
 
 	// List Cursors
 	ContainerCursor int
