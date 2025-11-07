@@ -1,13 +1,14 @@
 package ui
 
 import (
+	"dockerydo/internal/theme"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 )
 
 // RenderErrPopup renders a beautiful error popup overlay
-func RenderErrPopup(errorStr string, width, height int) string {
+func RenderErrPopup(errorStr string, width, height int, colors theme.Colors) string {
 	// Error icon and title
 	errorTitle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Red)).
@@ -64,7 +65,7 @@ func RenderErrPopup(errorStr string, width, height int) string {
 	)
 }
 
-func RenderConfirmationPopup(message string, width, height int) string {
+func RenderConfirmationPopup(message string, width, height int, colors theme.Colors) string {
 	// Warning icon and title
 	confirmTitle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Peach)).
