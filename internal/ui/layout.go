@@ -8,6 +8,7 @@ import (
 )
 
 func RenderBaseView(m types.Model) string {
+	// calculate panel dimensions
 	headerHight := 3
 	footerHight := 2
 	contentHight := m.Height - headerHight - footerHight
@@ -15,6 +16,7 @@ func RenderBaseView(m types.Model) string {
 		contentHight = 5
 	}
 
+	// split content area 40(left)/60(right)
 	leftWidth := int(float64(m.Width) * 0.4)
 	if leftWidth < 10 {
 		leftWidth = 10
@@ -24,17 +26,20 @@ func RenderBaseView(m types.Model) string {
 		rightWidth = 10
 	}
 
+	// render components
 	header := renderTabBar(m)
 	leftPanel := renderListPanel(m, leftWidth, contentHight)
 	rightPanel := renderMainPanel(m, rightWidth, contentHight)
 	footer := renderFooter(m)
 
+	// combine panels
 	content := lipgloss.JoinHorizontal(
 		lipgloss.Top,
 		leftPanel,
 		rightPanel,
 	)
 
+	// combine all
 	layout := lipgloss.JoinVertical(
 		lipgloss.Left,
 		header,
@@ -51,24 +56,31 @@ func renderTabBar(m types.Model) string {
 		tab    types.TabType
 		number int
 	}{
-		{"Containers", types.TabContainer, 1},
+		{"Containers", types.TabContainers, 1},
+		{"Images", types.TabImages, 2},
+		{"Volumes", types.TabVolumes, 3},
+		{"Networks", types.TabNetworks, 4},
 	}
 
 	var renderedTabs []string
-	for _, tab := range tabs {
+	for _, t := range tabs {
 		style := lipgloss.NewStyle().
-			Padding(2)
-		if m.ActiveTab == tab.tab {
-			style = style.Foreground(lipgloss.Color(m.Theme.Crust)).
+			Padding(0, 2)
+
+		if m.ActiveTab == t.tab {
+			// active tab
+			style = style.
+				Foreground(lipgloss.Color(m.Theme.Crust)).
 				Background(lipgloss.Color(m.Theme.Mauve)).
 				Bold(true)
 		} else {
+			// inactive tab
 			style = style.
 				Foreground(lipgloss.Color(m.Theme.Subtext0)).
 				Background(lipgloss.Color(m.Theme.Surface0))
 		}
 
-		label := fmt.Sprintf("[%d] %s", tab.number, tab.names)
+		label := fmt.Sprintf("[%d] %s", t.number, t.names)
 		renderedTabs = append(renderedTabs, style.Render(label))
 	}
 
