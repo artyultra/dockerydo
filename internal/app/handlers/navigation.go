@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"dockerydo/internal/docker"
+	"dockerydo/internal/theme"
 	"dockerydo/internal/types"
 	"fmt"
 
@@ -13,6 +14,8 @@ func HandleKeyPress(msg tea.KeyMsg, m types.Model) (types.Model, tea.Cmd) {
 	switch msg.String() {
 	case "ctrl+c", "q":
 		return m, tea.Quit
+	case "ctrl+t":
+		m.Theme = theme.ToggleTheme(m.Theme)
 	}
 	// Error popup takes priority
 	if m.ShowErrPopup || m.ShowFailedOpPopup {

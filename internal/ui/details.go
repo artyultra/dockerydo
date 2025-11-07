@@ -10,7 +10,17 @@ import (
 )
 
 // renderContainerDetails renders detailed info for a container
-func RenderContainerDetails(c types.Container, width int, colors theme.Colors) string {
+func RenderContainerDetails(c types.Container, width, height int, colors theme.Colors) string {
+	var b strings.Builder
+
+	titleStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(colors.Maroon)).
+		Background(lipgloss.Color(colors.Base)).
+		Underline(true).
+		MarginTop(1).
+		MarginBottom(1).
+		Bold(true)
+
 	labelStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Lavender)).
 		Bold(true).
@@ -18,61 +28,92 @@ func RenderContainerDetails(c types.Container, width int, colors theme.Colors) s
 		Align(lipgloss.Right)
 
 	valueStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color(colors.Text))
-
-	var lines []string
+		Foreground(lipgloss.Color(colors.Text)).
+		Background(lipgloss.Color(colors.Base))
 
 	// General Info
-	lines = append(lines, renderSection("General", colors))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Name", c.Names))
-	lines = append(lines, renderField(labelStyle, valueStyle, "ID", c.ID[:12]))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Image", c.Image))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Status", formatStatus(c.State, c.Status, colors)))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Created", c.CreatedAt))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Running For", c.RunningFor))
+	b.WriteString(renderSection(titleStyle, "General"))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Name", c.Names))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "ID", c.ID[:12]))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Image", c.Image))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Status", formatStatus(c.State, c.Status, colors)))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Created", c.CreatedAt))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Running For", c.RunningFor))
+	b.WriteString("\n")
 	if c.Size != "" {
-		lines = append(lines, renderField(labelStyle, valueStyle, "Size", c.Size))
+		b.WriteString(renderField(labelStyle, valueStyle, "Size", c.Size))
+		b.WriteString("\n")
 	}
-	lines = append(lines, "")
+	b.WriteString("\n")
 
 	// Ports
 	if len(c.Ports) > 0 {
-		lines = append(lines, renderSection("Ports", colors))
+		b.WriteString(renderSection(titleStyle, "Ports"))
+		b.WriteString("\n")
 		for _, port := range c.Ports {
 			portStr := fmt.Sprintf("%s:%s → %s/%s",
 				getIP(port),
 				port.InternalRange,
 				port.ExternalRange,
 				port.Protocol)
-			lines = append(lines, "  "+valueStyle.Render(portStr))
+			b.WriteString("  ")
+			b.WriteString(valueStyle.Render(portStr))
+			b.WriteString("\n")
 		}
-		lines = append(lines, "")
+		b.WriteString("\n")
 	}
 
 	// Docker Compose Info
 	if c.Labels != nil && c.Labels.ComposeProject != "" {
-		lines = append(lines, renderSection("Docker Compose", colors))
-		lines = append(lines, renderField(labelStyle, valueStyle, "Project", c.Labels.ComposeProject))
+		b.WriteString(renderSection(titleStyle, "Docker Compose"))
+		b.WriteString("\n")
+		b.WriteString(renderField(labelStyle, valueStyle, "Project", c.Labels.ComposeProject))
+		b.WriteString("\n")
 		if c.Labels.ComposeService != "" {
-			lines = append(lines, renderField(labelStyle, valueStyle, "Service", c.Labels.ComposeService))
+			b.WriteString(renderField(labelStyle, valueStyle, "Service", c.Labels.ComposeService))
+			b.WriteString("\n")
 		}
 		if c.Labels.ComposeConfigFiles != "" {
-			lines = append(lines, renderField(labelStyle, valueStyle, "Config", c.Labels.ComposeConfigFiles))
+			b.WriteString(renderField(labelStyle, valueStyle, "Config", c.Labels.ComposeConfigFiles))
+			b.WriteString("\n")
 		}
-		lines = append(lines, "")
+		b.WriteString("\n")
 	}
 
 	// Command
 	if c.Command != "" {
-		lines = append(lines, renderSection("Command", colors))
-		lines = append(lines, "  "+valueStyle.Render(c.Command))
+		b.WriteString(renderSection(titleStyle, "Command"))
+		b.WriteString("\n")
+		b.WriteString("  ")
+		b.WriteString(valueStyle.Render(c.Command))
+		b.WriteString("\n")
 	}
 
-	return strings.Join(lines, "\n")
+	containerStyle := lipgloss.NewStyle().
+		Width(width - 2).
+		Height(height)
+
+	return containerStyle.Render(b.String())
 }
 
 // renderImageDetails renders detailed info for an image
-func renderImageDetails(img types.Image, width int, colors theme.Colors) string {
+func renderImageDetails(img types.Image, width, height int, colors theme.Colors) string {
+	var b strings.Builder
+
+	titleStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(colors.Maroon)).
+		Background(lipgloss.Color(colors.Base)).
+		Underline(true).
+		MarginTop(1).
+		MarginBottom(1).
+		Bold(true)
+
 	labelStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Lavender)).
 		Bold(true).
@@ -80,25 +121,45 @@ func renderImageDetails(img types.Image, width int, colors theme.Colors) string 
 		Align(lipgloss.Right)
 
 	valueStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color(colors.Text))
+		Foreground(lipgloss.Color(colors.Text)).
+		Background(lipgloss.Color(colors.Base))
 
-	var lines []string
-
-	lines = append(lines, renderSection("Image Details", colors))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Repository", img.Repository))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Tag", img.Tag))
-	lines = append(lines, renderField(labelStyle, valueStyle, "ID", img.ID))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Created", img.CreatedSince+" ago"))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Size", img.Size))
+	b.WriteString(renderSection(titleStyle, "Image Details"))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Repository", img.Repository))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Tag", img.Tag))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "ID", img.ID))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Created", img.CreatedSince+" ago"))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Size", img.Size))
+	b.WriteString("\n")
 	if img.Digest != "" {
-		lines = append(lines, renderField(labelStyle, valueStyle, "Digest", img.Digest))
+		b.WriteString(renderField(labelStyle, valueStyle, "Digest", img.Digest))
+		b.WriteString("\n")
 	}
 
-	return strings.Join(lines, "\n")
+	containerStyle := lipgloss.NewStyle().
+		Width(width - 2).
+		Height(height)
+
+	return containerStyle.Render(b.String())
 }
 
 // renderVolumeDetails renders detailed info for a volume
-func renderVolumeDetails(vol types.Volume, width int, colors theme.Colors) string {
+func renderVolumeDetails(vol types.Volume, width, height int, colors theme.Colors) string {
+	var b strings.Builder
+
+	titleStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(colors.Maroon)).
+		Background(lipgloss.Color(colors.Base)).
+		Underline(true).
+		MarginTop(1).
+		MarginBottom(1).
+		Bold(true)
+
 	labelStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Lavender)).
 		Bold(true).
@@ -106,24 +167,43 @@ func renderVolumeDetails(vol types.Volume, width int, colors theme.Colors) strin
 		Align(lipgloss.Right)
 
 	valueStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color(colors.Text))
+		Foreground(lipgloss.Color(colors.Text)).
+		Background(lipgloss.Color(colors.Base))
 
-	var lines []string
-
-	lines = append(lines, renderSection("Volume Details", colors))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Name", vol.Name))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Driver", vol.Driver))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Mountpoint", vol.Mountpoint))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Scope", vol.Scope))
+	b.WriteString(renderSection(titleStyle, "Volume Details"))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Name", vol.Name))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Driver", vol.Driver))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Mountpoint", vol.Mountpoint))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Scope", vol.Scope))
+	b.WriteString("\n")
 	if vol.Size != "" {
-		lines = append(lines, renderField(labelStyle, valueStyle, "Size", vol.Size))
+		b.WriteString(renderField(labelStyle, valueStyle, "Size", vol.Size))
+		b.WriteString("\n")
 	}
 
-	return strings.Join(lines, "\n")
+	containerStyle := lipgloss.NewStyle().
+		Width(width - 2).
+		Height(height)
+
+	return containerStyle.Render(b.String())
 }
 
 // renderNetworkDetails renders detailed info for a network
-func renderNetworkDetails(net types.Network, width int, colors theme.Colors) string {
+func renderNetworkDetails(net types.Network, width, height int, colors theme.Colors) string {
+	var b strings.Builder
+
+	titleStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(colors.Maroon)).
+		Background(lipgloss.Color(colors.Base)).
+		Underline(true).
+		MarginTop(1).
+		MarginBottom(1).
+		Bold(true)
+
 	labelStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Lavender)).
 		Bold(true).
@@ -131,53 +211,61 @@ func renderNetworkDetails(net types.Network, width int, colors theme.Colors) str
 		Align(lipgloss.Right)
 
 	valueStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color(colors.Text))
+		Foreground(lipgloss.Color(colors.Text)).
+		Background(lipgloss.Color(colors.Base))
 
-	var lines []string
-
-	lines = append(lines, renderSection("Network Details", colors))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Name", net.Name))
-	lines = append(lines, renderField(labelStyle, valueStyle, "ID", net.ID[:12]))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Driver", net.Driver))
-	lines = append(lines, renderField(labelStyle, valueStyle, "Scope", net.Scope))
+	b.WriteString(renderSection(titleStyle, "Network Details"))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Name", net.Name))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "ID", net.ID[:12]))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Driver", net.Driver))
+	b.WriteString("\n")
+	b.WriteString(renderField(labelStyle, valueStyle, "Scope", net.Scope))
+	b.WriteString("\n")
 	if net.IPv6 != "" {
-		lines = append(lines, renderField(labelStyle, valueStyle, "IPv6", net.IPv6))
+		b.WriteString(renderField(labelStyle, valueStyle, "IPv6", net.IPv6))
+		b.WriteString("\n")
 	}
 	if net.Internal != "" {
-		lines = append(lines, renderField(labelStyle, valueStyle, "Internal", net.Internal))
+		b.WriteString(renderField(labelStyle, valueStyle, "Internal", net.Internal))
+		b.WriteString("\n")
 	}
 
-	return strings.Join(lines, "\n")
+	containerStyle := lipgloss.NewStyle().
+		Width(width - 2).
+		Height(height)
+
+	return containerStyle.Render(b.String())
 }
 
 // Helper functions
-func renderSection(title string, colors theme.Colors) string {
-	return lipgloss.NewStyle().
-		Foreground(lipgloss.Color(colors.Peach)).
-		Bold(true).
-		Underline(true).
-		Render(title)
+func renderSection(style lipgloss.Style, title string) string {
+	return style.Render(title)
 }
 
 func renderField(labelStyle, valueStyle lipgloss.Style, label, value string) string {
-	return labelStyle.Render(label+":") + "  " + valueStyle.Render(value)
+	return labelStyle.Render(label+":") + valueStyle.Render(" "+value)
 }
 
 func formatStatus(state, status string, colors theme.Colors) string {
-	statusStyle := lipgloss.NewStyle()
+	stateStyle := lipgloss.NewStyle().Background(lipgloss.Color(colors.Base))
 
 	switch state {
 	case "running":
-		statusStyle = statusStyle.Foreground(lipgloss.Color(colors.Green)).Bold(true)
+		stateStyle = stateStyle.Foreground(lipgloss.Color(colors.Green)).Bold(true)
 	case "exited":
-		statusStyle = statusStyle.Foreground(lipgloss.Color(colors.Red))
+		stateStyle = stateStyle.Foreground(lipgloss.Color(colors.Red))
 	case "paused":
-		statusStyle = statusStyle.Foreground(lipgloss.Color(colors.Yellow))
+		stateStyle = stateStyle.Foreground(lipgloss.Color(colors.Yellow))
 	default:
-		statusStyle = statusStyle.Foreground(lipgloss.Color(colors.Overlay0))
+		stateStyle = stateStyle.Foreground(lipgloss.Color(colors.Overlay0))
 	}
 
-	return statusStyle.Render(strings.ToUpper(state)) + " " + status
+	statusStyle := lipgloss.NewStyle().Background(lipgloss.Color(colors.Base))
+
+	return stateStyle.Render(strings.ToUpper(state)) + statusStyle.Render(" "+status)
 }
 
 func getIP(port types.PortMap) string {

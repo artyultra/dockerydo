@@ -181,6 +181,7 @@ func RenderListPanel(m types.Model, width, height int) string {
 	containerStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color(colors.Surface1)).
+		BorderBackground(lipgloss.Color(colors.Base)).
 		Background(lipgloss.Color(colors.Base)).
 		Width(containerWidth).
 		Height(containerHeight).
@@ -243,6 +244,7 @@ func renderMainPanel(m types.Model, width, height int) string {
 	containerStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color(colors.Surface1)).
+		BorderBackground(lipgloss.Color(colors.Base)).
 		Background(lipgloss.Color(colors.Base)).
 		Width(containerWidth).
 		Height(containerHeight).
@@ -273,25 +275,25 @@ func renderDetails(m types.Model, width, height int) string {
 		if len(m.Containers) == 0 || m.ContainerCursor >= len(m.Containers) {
 			return renderEmpty("No container selected", colors)
 		}
-		return RenderContainerDetails(m.Containers[m.ContainerCursor], width, m.Theme)
+		return RenderContainerDetails(m.Containers[m.ContainerCursor], width, height, m.Theme)
 
 	case types.TabImages:
 		if len(m.Images) == 0 || m.ImageCursor >= len(m.Images) {
 			return renderEmpty("No image selected", colors)
 		}
-		return renderImageDetails(m.Images[m.ImageCursor], width, colors)
+		return renderImageDetails(m.Images[m.ImageCursor], width, height, colors)
 
 	case types.TabVolumes:
 		if len(m.Volumes) == 0 || m.VolumeCursor >= len(m.Volumes) {
 			return renderEmpty("No volume selected", colors)
 		}
-		return renderVolumeDetails(m.Volumes[m.VolumeCursor], width, colors)
+		return renderVolumeDetails(m.Volumes[m.VolumeCursor], width, height, colors)
 
 	case types.TabNetworks:
 		if len(m.Networks) == 0 || m.NetworkCursor >= len(m.Networks) {
 			return renderEmpty("No network selected", colors)
 		}
-		return renderNetworkDetails(m.Networks[m.NetworkCursor], width, colors)
+		return renderNetworkDetails(m.Networks[m.NetworkCursor], width, height, colors)
 	}
 
 	return renderEmpty("Unknown tab", colors)
@@ -307,6 +309,7 @@ func truncateString(s string, maxLen int) string {
 func renderEmpty(msg string, colors theme.Colors) string {
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colors.Overlay0)).
+		Background(lipgloss.Color(colors.Base)).
 		Italic(true).
 		Padding(2, 2).
 		Render(msg)

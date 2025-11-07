@@ -19,7 +19,7 @@ func NewModel() types.Model {
 		RefreshEnabled:  true,
 		DetailsViewPort: viewport.New(0, 0),
 		LogsViewPort:    viewport.New(0, 0),
-		Theme:           theme.Mocha,
+		Theme:           theme.Dark,
 	}
 }
 
