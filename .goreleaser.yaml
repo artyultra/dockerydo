@@ -1,3 +1,5 @@
+version: 2
+
 before:
   hooks:
     - go mod tidy
@@ -22,15 +24,15 @@ builds:
       - -X main.date={{.Date}}
 
 archives:
-  - format: tar.gz
+  - formats: ["tar.gz"]
     name_template: >-
       {{ .ProjectName }}_
-      {{- Version }}_
+      {{- .Version }}_
       {{- .Os }}_
       {{- .Arch }}
     format_overrides:
       - goos: windows
-        format: zip
+        formats: ["zip"]
     files:
       - README.md
       - LICENSE
@@ -59,8 +61,7 @@ brews:
     install: |
       bin.install "dockerydo"
 
-# Aur
-
+# AUR
 aurs:
   - name: dockerydo
     homepage: "https://github.com/artyultra/dockerydo"
@@ -71,7 +72,7 @@ aurs:
     private_key: "{{ .Env.AUR_SSH_PRIVATE_KEY }}"
     git_url: "ssh://aur@aur.archlinux.org/dockerydo.git"
 
-# linux packages
+# Linux packages
 nfpms:
   - id: dockerydo
     package_name: dockerydo
