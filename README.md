@@ -33,6 +33,7 @@ brew install artyultra/dockerydo/dockerydo
 Download the latest release for your platform from the [releases page](https://github.com/artyultra/dockerydo/releases).
 
 Available for:
+
 - Linux (amd64, arm64)
 - macOS (amd64, arm64)
 - Windows (amd64, arm64)
@@ -138,7 +139,7 @@ go run main.go
 
 ## License
 
-[Add your license here]
+This project is licensed under the MIT License.
 
 ## Contributing
 
