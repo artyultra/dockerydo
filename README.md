@@ -22,10 +22,65 @@ A lightweight Terminal UI (TUI) for managing Docker resources on Linux and macOS
 
 ## Installation
 
+### Homebrew (macOS/Linux)
+
+```bash
+brew install artyultra/dockerydo/dockerydo
+```
+
+### Pre-built Binaries
+
+Download the latest release for your platform from the [releases page](https://github.com/artyultra/dockerydo/releases).
+
+Available for:
+- Linux (amd64, arm64)
+- macOS (amd64, arm64)
+- Windows (amd64, arm64)
+
+Extract the archive and move the binary to your PATH:
+
+```bash
+# Example for Linux/macOS
+tar -xzf dockerydo_*.tar.gz
+sudo mv dockerydo /usr/local/bin/
+```
+
+### Arch Linux (AUR)
+
+```bash
+yay -S dockerydo-bin
+# or
+paru -S dockerydo-bin
+```
+
+### Debian/Ubuntu
+
+```bash
+# Download the .deb file from releases
+wget https://github.com/artyultra/dockerydo/releases/download/v<VERSION>/dockerydo_<VERSION>_linux_amd64.deb
+sudo dpkg -i dockerydo_<VERSION>_linux_amd64.deb
+```
+
+### Red Hat/Fedora/CentOS
+
+```bash
+# Download the .rpm file from releases
+wget https://github.com/artyultra/dockerydo/releases/download/v<VERSION>/dockerydo_<VERSION>_linux_amd64.rpm
+sudo rpm -i dockerydo_<VERSION>_linux_amd64.rpm
+```
+
+### Alpine Linux
+
+```bash
+# Download the .apk file from releases
+wget https://github.com/artyultra/dockerydo/releases/download/v<VERSION>/dockerydo_<VERSION>_linux_amd64.apk
+sudo apk add --allow-untrusted dockerydo_<VERSION>_linux_amd64.apk
+```
+
 ### From Source
 
 ```bash
-git clone https://github.com/yourusername/dockerydo.git
+git clone https://github.com/artyultra/dockerydo.git
 cd dockerydo
 go build
 ```
