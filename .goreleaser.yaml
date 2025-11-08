@@ -63,14 +63,14 @@ brews:
 
 # AUR
 aurs:
-  - name: dockerydo
+  - name: dockerydo-bin
     homepage: "https://github.com/artyultra/dockerydo"
     description: "a lightweight docker gui for terminal for quick access to docker commands (inspired by lazygit)"
     maintainers:
       - artyultra <arty@artyultra.dev>
     license: MIT
     private_key: "{{ .Env.AUR_SSH_PRIVATE_KEY }}"
-    git_url: "ssh://aur@aur.archlinux.org/dockerydo.git"
+    git_url: "ssh://aur@aur.archlinux.org/dockerydo-bin.git"
 
 # Linux packages
 nfpms:
