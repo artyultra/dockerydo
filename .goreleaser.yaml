@@ -1,0 +1,89 @@
+version: 2.12.7
+
+before:
+  hooks:
+    - go mod tidy
+    - go mod download
+
+builds:
+  - id: dockerydo
+    binary: dockerydo
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- Version }}_
+      {{- .Os }}_
+      {{- .Arch }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+
+# Homebrew
+brews:
+  - name: dockerydo
+    repository:
+      owner: artyultra
+      name: homebrew-dockerydo
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/artyultra/dockerydo"
+    description: "a lightweight docker gui for terminal for quick access to docker commands (inspired by lazygit)"
+    install: |
+      bin.install "dockerydo"
+
+# Aur
+
+aurs:
+  - name: dockerydo
+    homepage: "https://github.com/artyultra/dockerydo"
+    description: "a lightweight docker gui for terminal for quick access to docker commands (inspired by lazygit)"
+    maintainers:
+      - artyultra <arty@artyultra.dev>
+    license: MIT
+    private_key: "{{ .Env.AUR_SSH_PRIVATE_KEY }}"
+    git_url: "ssh://aur@aur.archlinux.org/dockerydo.git"
+
+# linux packages
+nfpms:
+  - id: dockerydo
+    package_name: dockerydo
+    vendor: artyultra
+    homepage: "https://github.com/artyultra/dockerydo"
+    maintainer: artyultra <arty@artyultra.dev>
+    description: "a lightweight docker gui for terminal for quick access to docker commands (inspired by lazygit)"
+    license: MIT
+    formats:
+      - deb
+      - rpm
+      - apk
+    bindir: /usr/bin

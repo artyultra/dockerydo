@@ -4,11 +4,18 @@ import (
 	"dockerydo/internal/app"
 	"dockerydo/internal/types"
 	"dockerydo/internal/ui"
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
 
 	tea "github.com/charmbracelet/bubbletea"
+)
+
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
 )
 
 type bubbletea struct {
@@ -30,6 +37,15 @@ func (b bubbletea) View() string {
 }
 
 func main() {
+	versionFlag := flag.Bool("version", false, "Print version and exit")
+	flag.BoolVar(versionFlag, "v", false, "Print version information (shorthand)")
+	flag.Parse()
+
+	// check for version flag
+	if *versionFlag {
+		fmt.Printf("dockerydo %s (commit: %s, built: %s)\n", version, commit, date)
+		return
+	}
 	m := app.NewModel()
 	p := tea.NewProgram(bubbletea{model: m})
 	_, err := p.Run()
