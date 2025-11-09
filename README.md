@@ -2,6 +2,10 @@
 
 A lightweight Terminal UI (TUI) for managing Docker resources on Linux and macOS, built as a simple alternative to Docker Desktop for basic Docker operations.
 
+## Motivation
+
+Docker Desktop has become increasingly resource-heavy and comes with licensing restrictions for enterprise use. dockerydo was created to provide a lightweight, open-source alternative for developers who need basic Docker management capabilities without the overhead of a full desktop application. Built with Go and the Bubble Tea framework, it offers a fast, terminal-native experience that integrates seamlessly into command-line workflows.
+
 ## Features
 
 - **Container Management**: View, start, stop, restart, and remove containers
@@ -19,6 +23,40 @@ A lightweight Terminal UI (TUI) for managing Docker resources on Linux and macOS
 - Go 1.24.1 or higher
 - Docker installed and running
 - Linux or macOS
+
+## Quick Start
+
+The fastest way to get started with dockerydo:
+
+### macOS/Linux (Homebrew)
+
+```bash
+brew install artyultra/dockerydo/dockerydo
+dockerydo
+```
+
+### Pre-built Binary
+
+```bash
+# Download the latest release for your platform
+wget https://github.com/artyultra/dockerydo/releases/latest/download/dockerydo_$(uname -s)_$(uname -m).tar.gz
+
+# Extract and install
+tar -xzf dockerydo_*.tar.gz
+sudo mv dockerydo /usr/local/bin/
+
+# Run it
+dockerydo
+```
+
+### From Source
+
+```bash
+git clone https://github.com/artyultra/dockerydo.git
+cd dockerydo
+go build
+./dockerydo
+```
 
 ## Installation
 
@@ -93,15 +131,55 @@ The binary will be created as `dockerydo` in the current directory.
 Simply run the binary:
 
 ```bash
+dockerydo
+```
+
+Or if running from the source directory:
+
+```bash
 ./dockerydo
 ```
 
 ### Navigation
 
 - **Tab**: Switch between tabs (Containers, Images, Volumes, Networks)
-- **Arrow Keys**: Navigate through lists
+- **Arrow Keys (↑/↓)**: Navigate through lists
 - **Enter**: Select item for detailed view
+- **Esc**: Return to list view from detail view
 - **q**: Quit application
+
+### Common Tasks
+
+#### Managing Containers
+
+1. Navigate to the Containers tab (default view)
+2. Use arrow keys to select a container
+3. Press Enter to view details and available actions
+4. Common actions include:
+   - Start/Stop containers
+   - Restart containers
+   - View logs
+   - Remove containers
+
+#### Managing Images
+
+1. Press Tab to switch to the Images tab
+2. Select an image to view details
+3. Available actions:
+   - Remove images
+   - View image layers and metadata
+
+#### Managing Volumes
+
+1. Press Tab to navigate to the Volumes tab
+2. Select a volume to inspect
+3. View volume details and mount points
+
+#### Managing Networks
+
+1. Press Tab to navigate to the Networks tab
+2. Select a network to view configuration
+3. Inspect connected containers and network settings
 
 ## Project Structure
 
@@ -143,7 +221,67 @@ This project is licensed under the MIT License.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! We appreciate your help in making dockerydo better.
+
+### How to Contribute
+
+1. **Fork the Repository**
+   ```bash
+   git clone https://github.com/artyultra/dockerydo.git
+   cd dockerydo
+   ```
+
+2. **Create a Feature Branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Make Your Changes**
+   - Follow Go best practices and conventions
+   - Ensure your code is properly formatted (`go fmt`)
+   - Add tests if applicable
+   - Update documentation as needed
+
+4. **Test Your Changes**
+   ```bash
+   go build
+   ./dockerydo
+   ```
+
+5. **Commit Your Changes**
+   ```bash
+   git add .
+   git commit -m "Add: description of your changes"
+   ```
+
+6. **Push and Create a Pull Request**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+   Then open a Pull Request on GitHub with a clear description of your changes.
+
+### Development Guidelines
+
+- Keep code modular and organized following the existing project structure
+- Use meaningful variable and function names
+- Comment complex logic
+- Ensure the UI remains responsive and user-friendly
+- Test with different Docker configurations and states
+
+### Reporting Issues
+
+If you find a bug or have a feature request:
+
+1. Check if the issue already exists in the [Issues](https://github.com/artyultra/dockerydo/issues) section
+2. If not, create a new issue with:
+   - Clear description of the problem or feature
+   - Steps to reproduce (for bugs)
+   - Expected vs actual behavior
+   - System information (OS, Docker version, Go version)
+
+### Code of Conduct
+
+Please be respectful and constructive in all interactions. We're all here to build something useful together.
 
 ## Roadmap
 
